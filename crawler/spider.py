@@ -23,7 +23,7 @@ class Spider:
     def __refer(self):
         query_last_id_result = self.__fetch_last()
         params_dict = {
-            'judgementId': query_last_id_result[1],
+            'judgementId': query_last_id_result[2],
             'area': query_last_id_result[4],
             'index': query_last_id_result[0],
             'sortType': 1,
@@ -36,7 +36,7 @@ class Spider:
         query_last_id_result = self.__fetch_last()
         return {
             'timestamp': round((time.time()-5) * 1000),
-            'judgementId': query_last_id_result[1],
+            'judgementId': query_last_id_result[2],
             'area': query_last_id_result[5],
             'sortType': 1,
             'conditions': 'searchWord+法院+1+法院,trialYear+2018+7+2018'
@@ -68,6 +68,7 @@ class Spider:
                     self.db.insert_id(judgement.get('id'), judgement.get('nextId'),
                                       last_record[3], last_record[5], judgement.get('nextArea'))
                     self.db.insert_detail(judgement.get('id'), str(judgement))
+                    break
             if result == 'timeout':
                 break
         print('end')
