@@ -44,6 +44,7 @@ class Spider:
 
     def start(self):
         retry = 10
+        start_count = self.db.get_now_count()
         while True:
             headers = get_header()
             headers['Referer'] = self.__refer()
@@ -71,4 +72,5 @@ class Spider:
                     break
             if result == 'timeout':
                 break
-        print('end')
+        end_count = self.db.get_now_count()
+        print('本次共爬取{}条数据,end!'.format(end_count-start_count))

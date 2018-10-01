@@ -105,3 +105,7 @@ class Db:
         query = "UPDATE id_queue set `count`=(%s) WHERE 1 ORDER BY uid DESC LIMIT 1"
         self.cursor.execute(query, (first.get('count'),))
         self.cnx.commit()
+
+    def get_now_count(self):
+        self.cursor.execute("select count(*) from id_queue")
+        return self.cursor.fetchone()[0]
