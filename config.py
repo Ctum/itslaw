@@ -47,4 +47,9 @@ def get_header():
         'Accept-Language': 'en-US,en;q=0.5',
         'Connection': 'keep-alive',
         'Accept-Encoding': 'gzip, deflate',
+        'Host': 'www.itslaw.com'
     }
+
+
+TIME_OUT = 5
+

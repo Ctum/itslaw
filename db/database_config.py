@@ -2,6 +2,7 @@ import configparser
 import os
 config = configparser.ConfigParser()
 rootDir = os.path.split(os.path.realpath(__file__))[0]
+rootDir = "\\".join(rootDir.split('\\')[0: len(rootDir.split('\\'))-1])
 configPath = os.path.join(rootDir, 'config.ini')
 
 try:

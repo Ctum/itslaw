@@ -1,6 +1,7 @@
 import mysql.connector
 from mysql.connector import errorcode
 import db.database_config as db
+from util import get_first
 
 DB_NAME = db.get_db_name()
 TABLES = {}
@@ -41,7 +42,7 @@ class Db:
                         "CREATE DATABASE {} DEFAULT CHARACTER SET 'utf8'".format(DB_NAME)
                     )
                 except mysql.connector.Error as err:
-                    print('Fail to create database:'.format(DB_NAME))
+                    print('Fail to create database: {}'.format(DB_NAME))
                     exit(-1)
                 self.cnx.database = DB_NAME
             else:
@@ -60,21 +61,47 @@ class Db:
             else:
                 print("all tables was be established")
 
-    def insert_count(self, count):
-        add_count = ("INSERT INTO id_queue"
-                     "(count)"
-                     "VALUES (%s)")
-        self.cursor.execute(add_count, count)
+    def insert_first(self):
+        # alter table id_queue AUTO_INCREMENT = 1
+        self.cursor.execute("select count(*) from id_queue")
+        count = self.cursor.fetchone()[0]
+        if(count == 0):
+            first = get_first()
+            add_first = ("INSERT INTO id_queue"
+                      "(id, next_id, count, area, next_area)"
+                      "VALUES (%s, %s, %s, %s, %s)")
+            self.cursor.execute(add_first, (first.get('id'), first.get('next_id'), first.get('count'), first.get('area'), first.get('next_area')))
+            self.cnx.commit()
+        else:
+            pass
 
     def insert_id(self, id, next_id, count, area, next_area):
         # sql语句
         add_id = ("INSERT INTO id_queue"
                   "(id, next_id, count, area, next_area)"
                   "VALUES (%s, %s, %s, %s, %s)")
-        self.cursor.execute(add_id, id, next_id, count, area, next_area)
+        self.cursor.execute(add_id, (id, next_id, count, area, next_area))
+        self.cnx.commit()
 
     def insert_detail(self, id, detail):
         add_detail = ("INSERT INTO detail"
                       "(id, detail)"
                       "VALUES (%s, %s)")
-        self.cursor.execute(add_detail, id, detail)
+        self.cursor.execute(add_detail, (id, detail))
+        self.cnx.commit()
+
+    def fetch_last_one(self):
+        query_last_id = ('select * from id_queue order by uid desc limit 1')
+        self.cursor.execute(query_last_id)
+        return self.cursor.fetchone()
+
+    def alter_count(self):
+        '''
+        修改最后一条字段的count
+        UPDATE id_queue set count=new_count WHERE 1 ORDER BY uid DESC LIMIT 1
+        :return:
+        '''
+        first = get_first()
+        query = "UPDATE id_queue set `count`=(%s) WHERE 1 ORDER BY uid DESC LIMIT 1"
+        self.cursor.execute(query, (first.get('count'),))
+        self.cnx.commit()
